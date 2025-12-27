@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do-List</title>
+
+    <style>
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #232b34;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+section {
+    width : 100%;
+    max-width: 420px;
+    padding: 20px;
+}
+
+h1 {
+    color: #ff6b6b;
+    margin-bottom: 25px;
+    font-size: 2.2rem;
+    letter-spacing: 1px;
+}
+
+.mainDiv {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+/* Input styling */
+.mainDiv input {
+    width: 260px;
+    padding: 12px 15px;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+.mainDiv input:focus {
+    box-shadow: 0 0 0 2px rgba(47, 255, 0, 0.4);
+}
+
+/* Button styling */
+.buttonClass {
+    background-color: #ffe600;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 
+        transform 0.15s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.buttonClass:hover {
+    background: linear-gradient(
+    135deg,
+    #5e8dbc,
+    #1f8a56
+);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    transform: translateY(-2px);
+}
+
+.buttonClass:active {
+    transform: translateY(-px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.main_todo_div{
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /*genetrate equal distance between child div of the parent div*/
+    align-items: center;
+    background: linear-gradient(
+    135deg,
+    #1f2933,
+    #223b2f
+    );
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-top: 12px;
+}
+
+ul {
+    padding: 0;
+}
+
+
+li {
+    list-style: disc;
+    color: #41ff07;
+    margin-left: 16px;
+    overflow-wrap: break-word;
+}
+.main_todo_div .buttonClass {
+    padding: 8px 14px;
+    font-size: 13px;
+}
+
+</style>
+</head>
+<body>
+    <section>
+        <h1>To-Do-List</h1>
+        <div class = "mainDiv">
+            <input
+            type="text"
+            id = "inputValue"
+            placeholder="Enter your task..."
+            required`
+            autocomplete="on"
+            >
+            <button class = "buttonClass" id = "btn"> Add-To </button>
+        </div>
+        <!--ek section orr chiye hogi list ko add karne ke liye-->
+        <section class = "todo-lists-ele"></section>
+    </section>
+
+    <script>
+        const mainTodoElem = document.querySelector(".todo-lists-ele");
+        const inputValue = document.getElementById("inputValue");
+        const button1 = document.querySelector(".buttonClass");
+
+        const getTodoListFromLocal = () => {
+            return JSON.parse(localStorage.getItem("yourList"));
+        };
+
+        const addTodoListLocalStorage = (localTodoLists) => {
+            return localStorage.setItem("yourList", JSON.stringify(localTodoLists));
+        };
+
+        let localTodoLists = getTodoListFromLocal() || [];
+
+
+        const addTododynamicElement = (currEle) => {
+            const divElement = document.createElement("div");
+            divElement.classList.add("main_todo_div");
+            divElement.innerHTML = `<ul><li>${currEle}</li></ul>
+            <button class = "buttonClass">Delete me</button>`;
+            mainTodoElem.append(divElement);
+        }
+
+        const addTodoList = () => {
+            const todoListValue = inputValue.value.trim();
+            const normalizedValue = todoListValue.toLowerCase();
+
+            if(todoListValue === "")
+            {
+                alert("Please add the task!")
+                return;
+            }
+            if(localTodoLists.map(t => t.toLowerCase()).includes(normalizedValue))
+            {
+                alert("Task already Exists!");
+                return;
+            }
+
+            //DATA(unique)
+            const divElement = document.createElement("div");
+            divElement.classList.add("main_todo_div");
+            divElement.innerHTML = `<ul><li>${todoListValue}</li></ul>
+            <button class = "buttonClass">Delete me</button>`;
+            mainTodoElem.append(divElement);
+
+            localTodoLists.push(todoListValue);
+            localTodoLists = [...new Set(localTodoLists)];
+
+            console.log(localTodoLists);
+            localStorage.setItem("yourList", JSON.stringify(localTodoLists));
+
+            inputValue.value = "";
+        };
+
+        const showToDoList = () => {
+            console.log(localTodoLists);
+            localTodoLists.forEach((currEle) => {
+                addTododynamicElement(currEle);
+            });
+        };
+
+        showToDoList();
+
+        const removeTodoElem = (e) => {
+        if (!e.target.classList.contains("buttonClass"))
+            {return;}
+        const todoToRemove = e.target;
+        const todoText = e.target.previousElementSibling.innerText.toLowerCase();
+
+        let parentElem = todoToRemove.parentElement;
+
+        localTodoLists = localTodoLists.filter(
+            todo => todo.toLowerCase() !== todoText);
+
+        addTodoListLocalStorage(localTodoLists);
+        parentElem.remove();
+        };
+        const button1Fun = () => {
+            addTodoList();
+        };
+
+        button1.addEventListener('click', button1Fun);
+        mainTodoElem.addEventListener("click", (e) => {
+            removeTodoElem(e);
+        });
+    </script>
+</body>
+</html>
